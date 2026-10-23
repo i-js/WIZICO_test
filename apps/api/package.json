@@ -1,0 +1,32 @@
+{
+  "name": "@todo/api",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsc -p tsconfig.json && concurrently -k 'tsc -p tsconfig.json --watch' 'node --watch --env-file-if-exists=../../.env dist/src/main.js'",
+    "start": "node --env-file-if-exists=../../.env dist/src/main.js",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "tsx prisma/seed.ts",
+    "test": "tsc -p tsconfig.json && node --env-file-if-exists=../../.env --test dist/test/*.test.js"
+  },
+  "dependencies": {
+    "@nestjs/common": "12.2.0",
+    "@nestjs/core": "12.2.0",
+    "@nestjs/jwt": "12.0.3",
+    "@nestjs/platform-express": "12.2.0",
+    "@nestjs/platform-socket.io": "12.2.0",
+    "@nestjs/websockets": "12.2.0",
+    "@prisma/client": "6.19.3",
+    "@todo/contracts": "1.0.0",
+    "cookie": "^1.0.2",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "socket.io": "^4.8.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0"
+  }
+}

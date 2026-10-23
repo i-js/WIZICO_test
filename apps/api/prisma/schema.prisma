@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @db.Uuid
+  email String @unique
+  name String
+  passwordHash String
+  lists TodoList[]
+  memberships Membership[]
+  tasks Task[]
+}
+
+model TodoList {
+  id String @id @db.Uuid
+  title String
+  ownerId String @db.Uuid
+  owner User @relation(fields: [ownerId], references: [id])
+  revision Int @default(0)
+  members Membership[]
+  tasks Task[]
+  invitations Invitation[]
+}
+
+model Membership {
+  listId String @db.Uuid
+  userId String @db.Uuid
+  list TodoList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+  @@id([listId, userId])
+}
+
+model Task {
+  id String @id @db.Uuid
+  listId String @db.Uuid
+  authorId String @db.Uuid
+  list TodoList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id])
+  text String
+  completed Boolean @default(false)
+  position Int
+  textVersion Int @default(1)
+  version Int @default(1)
+  @@index([listId, position])
+}
+
+model Invitation {
+  id String @id @default(uuid()) @db.Uuid
+  listId String @db.Uuid
+  list TodoList @relation(fields: [listId], references: [id], onDelete: Cascade)
+  tokenHash String @unique
+  expiresAt DateTime
+  acceptedBy String? @db.Uuid
+}
+
+// Intentionally independent of TodoList: retries after list deletion still need a receipt.
+model ProcessedCommand {
+  userId String @db.Uuid
+  commandId String @db.Uuid
+  payloadHash String
+  result Json
+  createdAt DateTime @default(now())
+  @@id([userId, commandId])
+}

@@ -1,0 +1,39 @@
+{
+  "name": "collaborative-todo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build:contracts": "npm run build -w @todo/contracts",
+    "build": "npm run build:contracts && npm run build -w @todo/api && npm run build -w @todo/web",
+    "typecheck": "npm run build:contracts && npm run typecheck -w @todo/api && npm run typecheck -w @todo/web && tsc -p tsconfig.e2e.json",
+    "dev": "npm run build:contracts && concurrently -k -n api,web 'npm run dev -w @todo/api' 'npm run dev -w @todo/web'",
+    "start": "concurrently -k -n api,web 'npm run start -w @todo/api' 'npm run start -w @todo/web'",
+    "db:generate": "npm run db:generate -w @todo/api",
+    "db:migrate": "node --env-file-if-exists=.env node_modules/prisma/build/index.js migrate deploy --schema apps/api/prisma/schema.prisma",
+    "db:seed": "node --env-file-if-exists=.env --import tsx apps/api/prisma/seed.ts",
+    "test": "npm run build:contracts && npm run test -w @todo/api && tsx --test apps/web/test/*.test.ts",
+    "test:e2e": "playwright test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/node": "^24.0.0",
+    "concurrently": "^9.2.0",
+    "prettier": "^3.9.10",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "prisma": "6.19.3"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "overrides": {
+    "@prisma/config": {
+      "deepmerge-ts": "8.0.2"
+    }
+  }
+}
